@@ -9,7 +9,7 @@ use Hope\Locker\LockerException;
 class FileLockerTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * Root directory
+     * Root directory of virtual FS
      *
      * @var vfsStreamDirectory
      */
@@ -84,7 +84,8 @@ class FileLockerTest extends \PHPUnit_Framework_TestCase
          * @var \org\bovigo\vfs\vfsStreamFile $vfsLockFile
          */
         $vfsLockFile = $this->root->getChild($lockFile);
-        $vfsLockFile->chmod(0400)->chown(1);
+        $vfsLockFile->chmod(0400)
+                    ->chown(1);
 
         $locker->isLocked();
     }
@@ -108,7 +109,9 @@ class FileLockerTest extends \PHPUnit_Framework_TestCase
         $locker->lock();
 
         // Prevet lockfile form removing
-        $this->root->chmod(0400)->chown(1);
+        $this->root
+             ->chmod(0400)
+             ->chown(1);
 
         $locker->unlock();
     }
