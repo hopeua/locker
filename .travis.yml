@@ -14,4 +14,4 @@ matrix:
 before_script:
   - "mkdir -p ~/.composer"
   - composer self-update
-  - composer install
+  - composer install --prefer-source --optimize-autoloader
