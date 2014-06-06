@@ -2,28 +2,31 @@
 namespace Hope\Locker;
 
 /**
- * Lock some instance
+ * Interface for different lockers
  */
 interface LockerInterface
 {
     /**
-     * Lock instance
+     * Locks the locker
      *
-     * @return null
+     * @return void
+     * @throws LockerException
      */
     public function lock();
 
     /**
-     * Unlock instance
+     * Unlocks the locker
      *
-     * @return null
+     * @return void
+     * @throws LockerException
      */
     public function unlock();
 
     /**
-     * Checks if instance locked
+     * Check if lock is locked
      *
      * @return bool
+     * @throws LockerException
      */
     public function isLocked();
 }

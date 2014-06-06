@@ -1,20 +1,23 @@
 <?php
 namespace Hope\Locker;
 
+/**
+ * Lock using file and id of process
+ */
 class FileLocker extends CommonLocker
 {
     /**
-     * @var string ID of instance
+     * @var string ID of the lock
      */
     private $id;
 
     /**
-     * @var string RegExp for ID
+     * @var string RegExp for Lock ID
      */
     private $regId = '~^[a-zA-Z0-9\-_]+$~';
 
     /**
-     * @var string RegExp for Pid
+     * @var string RegExp for Process ID
      */
     private $regPid = '~^\d+$~';
 
@@ -34,6 +37,9 @@ class FileLocker extends CommonLocker
         $this->options = $options;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function lock()
     {
         // Check if already locked
@@ -47,6 +53,9 @@ class FileLocker extends CommonLocker
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function unlock()
     {
         if ($this->isLocked()) {
@@ -56,8 +65,12 @@ class FileLocker extends CommonLocker
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function isLocked()
     {
+        // Check the lock file
         if (!file_exists($this->getFilePath())) {
             return false;
         }
@@ -81,12 +94,22 @@ class FileLocker extends CommonLocker
         return true;
     }
 
+    /**
+     * Helper function for the lock file name
+     *
+     * @return string Name of the lock file
+     */
     private function getFileName()
     {
         $lockFile = $this->id . '.lock';
         return $lockFile;
     }
 
+    /**
+     * Helper function for the full path of the lock file
+     *
+     * @return string Absolute path to the lock file
+     */
     private function getFilePath()
     {
         $lockDir  = $this->options['lockDir'];

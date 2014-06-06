@@ -1,7 +1,12 @@
 <?php
 namespace Hope\Locker;
 
-class LockerException extends \RuntimeException
+use RuntimeException;
+
+/**
+ * Locker exceptions
+ */
+class LockerException extends RuntimeException
 {
     const INVALID_ID   = 10;
     const LOCKED       = 20;
