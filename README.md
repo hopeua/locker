@@ -6,7 +6,7 @@ Usage
     if ($locker->isLocked()) {
         die('Already locked');
     }
-    
+
     $locker->lock();
     ... some code ...
     $locker->unlock();
