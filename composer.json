@@ -1,6 +1,8 @@
 {
     "name": "hope/locker",
     "description": "Process locker",
+    "keywords": ["locker","hopechannel","hopeua"],
+    "license": "MIT",
     "require": {
         "php": ">=5.4.0"
     },
