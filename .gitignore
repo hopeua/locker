@@ -1,3 +1,8 @@
+# Project
 /vendor/
+/dev/
 phpunit.xml
 composer.lock
+
+# System
+.DS_Store
