@@ -24,7 +24,7 @@ class FileLockerTest extends \PHPUnit_Framework_TestCase
     /**
      * Basic workflow test
      *
-     * @covers Worker\Lib\Locker\FileLocker
+     * @covers Hope\Locker\FileLocker
      *
      */
     public function testBasic()
@@ -39,7 +39,12 @@ class FileLockerTest extends \PHPUnit_Framework_TestCase
         // Lock
         $locker->lock();
         $this->assertTrue($this->root->hasChild($lockFile));
-        $this->assertRegExp('~\d+~', $this->root->getChild($lockFile)->getContent());
+
+        /**
+         * @var \org\bovigo\vfs\vfsStreamFile $vfsLockFile
+         */
+        $vfsLockFile = $this->root->getChild($lockFile);
+        $this->assertRegExp('~\d+~', $vfsLockFile->getContent());
 
         // Check is locked
         $this->assertTrue($locker->isLocked());
@@ -133,6 +138,23 @@ class FileLockerTest extends \PHPUnit_Framework_TestCase
         $vfsLockFile->setContent('NotAPid');
 
         $locker->isLocked();
+    }
+
+    public function testUnlockIfPidNotExists()
+    {
+        $lockId   = 'testPid';
+        $lockFile = $this->getLockFileName($lockId);
+
+        $locker = new FileLocker($lockId, ['lockDir' => 'vfs://lock']);
+        $locker->lock();
+
+        /**
+         * @var \org\bovigo\vfs\vfsStreamFile $vfsLockFile
+         */
+        $vfsLockFile = $this->root->getChild($lockFile);
+        $vfsLockFile->setContent('99999');
+
+        $this->assertFalse($locker->isLocked());
     }
 
     /**
