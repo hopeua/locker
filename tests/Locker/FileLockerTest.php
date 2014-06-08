@@ -4,7 +4,6 @@ namespace Hope\Tests\Locker;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use Hope\Locker\FileLocker;
-use Hope\Locker\LockerException;
 
 class FileLockerTest extends \PHPUnit_Framework_TestCase
 {
@@ -57,28 +56,57 @@ class FileLockerTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($locker->isLocked());
     }
 
+    public function testUnlockIfPidNotExists()
+    {
+        $lockId   = 'testPid';
+        $lockFile = $this->getLockFileName($lockId);
+
+        $locker = new FileLocker($lockId, ['lockDir' => 'vfs://lock']);
+        $locker->lock();
+
+        /**
+         * @var \org\bovigo\vfs\vfsStreamFile $vfsLockFile
+         */
+        $vfsLockFile = $this->root->getChild($lockFile);
+        $vfsLockFile->setContent('99999');
+
+        $this->assertFalse($locker->isLocked());
+    }
+
+    /**
+     * @expectedException \Hope\Locker\LockerException
+     */
     public function testExceptionId()
     {
-        $this->setExpectedException('Hope\Locker\LockerException', '', LockerException::INVALID_ID);
-
         $lockId = 'wrongId.%';
         $locker = new FileLocker($lockId);
     }
 
+    /**
+     * @expectedException \Symfony\Component\OptionsResolver\Exception\MissingOptionsException
+     */
+    public function testMissingOptions()
+    {
+        $lockId = 'testNoOption';
+        $locker = new FileLocker($lockId, []);
+    }
+
+    /**
+     * @expectedException \Hope\Locker\LockerException
+     */
     public function testExceptionLocked()
     {
-        $this->setExpectedException('Hope\Locker\LockerException', '', LockerException::LOCKED);
-
         $lockId = 'testExLocked';
         $locker = new FileLocker($lockId, ['lockDir' => 'vfs://lock']);
         $locker->lock();
         $locker->lock();
     }
 
+    /**
+     * @expectedException \Hope\Locker\LockerException
+     */
     public function testExceptionRead()
     {
-        $this->setExpectedException('Hope\Locker\LockerException', '', LockerException::FS_READ);
-
         $lockId   = 'testExRead';
         $lockFile = $this->getLockFileName($lockId);
 
@@ -95,19 +123,21 @@ class FileLockerTest extends \PHPUnit_Framework_TestCase
         $locker->isLocked();
     }
 
+    /**
+     * @expectedException \Hope\Locker\LockerException
+     */
     public function testExceptionWrite()
     {
-        $this->setExpectedException('Hope\Locker\LockerException', '', LockerException::FS_WRITE);
-
         $lockId = 'testExWrite';
         $locker = new FileLocker($lockId, ['lockDir' => 'vfs://notExists']);
         $locker->lock();
     }
 
+    /**
+     * @expectedException \Hope\Locker\LockerException
+     */
     public function testExceptionDel()
     {
-        $this->setExpectedException('Hope\Locker\LockerException', '', LockerException::FS_DEL);
-
         $lockId   = 'testExDel';
 
         $locker = new FileLocker($lockId, ['lockDir' => 'vfs://lock']);
@@ -121,10 +151,11 @@ class FileLockerTest extends \PHPUnit_Framework_TestCase
         $locker->unlock();
     }
 
+    /**
+     * @expectedException \Hope\Locker\LockerException
+     */
     public function testExceptionLockFileContent()
     {
-        $this->setExpectedException('Hope\Locker\LockerException', '', LockerException::LOCK_CONTENT);
-
         $lockId   = 'testExContent';
         $lockFile = $this->getLockFileName($lockId);
 
@@ -138,23 +169,6 @@ class FileLockerTest extends \PHPUnit_Framework_TestCase
         $vfsLockFile->setContent('NotAPid');
 
         $locker->isLocked();
-    }
-
-    public function testUnlockIfPidNotExists()
-    {
-        $lockId   = 'testPid';
-        $lockFile = $this->getLockFileName($lockId);
-
-        $locker = new FileLocker($lockId, ['lockDir' => 'vfs://lock']);
-        $locker->lock();
-
-        /**
-         * @var \org\bovigo\vfs\vfsStreamFile $vfsLockFile
-         */
-        $vfsLockFile = $this->root->getChild($lockFile);
-        $vfsLockFile->setContent('99999');
-
-        $this->assertFalse($locker->isLocked());
     }
 
     /**

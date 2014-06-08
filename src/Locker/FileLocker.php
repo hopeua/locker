@@ -1,6 +1,9 @@
 <?php
 namespace Hope\Locker;
 
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+
 /**
  * Lock using file and id of process
  */
@@ -24,7 +27,7 @@ class FileLocker implements LockerInterface
     /**
      * @var array Options
      */
-    private $options = [];
+    private $options;
 
     public function __construct($id, array $options = [])
     {
@@ -33,8 +36,18 @@ class FileLocker implements LockerInterface
             throw new LockerException('Invalid ID', LockerException::INVALID_ID);
         }
 
+        // Resolve options
+        $resolver      = new OptionsResolver();
+        $this->configureOptions($resolver);
+        $this->options = $resolver->resolve($options);
+
         $this->id      = $id;
         $this->options = $options;
+    }
+
+    private function configureOptions(OptionsResolverInterface $resolver)
+    {
+        $resolver->setRequired(['lockDir']);
     }
 
     /**
