@@ -4,7 +4,7 @@ namespace Hope\Locker;
 /**
  * Lock using file and id of process
  */
-class FileLocker extends CommonLocker
+class FileLocker implements LockerInterface
 {
     /**
      * @var string ID of the lock
@@ -95,17 +95,6 @@ class FileLocker extends CommonLocker
     }
 
     /**
-     * Helper function for the lock file name
-     *
-     * @return string Name of the lock file
-     */
-    private function getFileName()
-    {
-        $lockFile = $this->id . '.lock';
-        return $lockFile;
-    }
-
-    /**
      * Helper function for the full path of the lock file
      *
      * @return string Absolute path to the lock file
@@ -113,7 +102,7 @@ class FileLocker extends CommonLocker
     private function getFilePath()
     {
         $lockDir  = $this->options['lockDir'];
-        $lockFile = $lockDir . DIRECTORY_SEPARATOR . $this->getFileName();
+        $lockFile = $lockDir . DIRECTORY_SEPARATOR . $this->id . '.lock';
         return $lockFile;
     }
 }
