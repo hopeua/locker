@@ -100,7 +100,7 @@ class FileLocker implements LockerInterface
         }
 
         // Check if pid exist
-        if (!file_exists('/proc/' . $pid)) {
+        if (!@file_exists('/proc/' . $pid)) {
             return false;
         }
 
