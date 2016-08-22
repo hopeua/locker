@@ -91,7 +91,8 @@ class FileLocker implements LockerInterface
         }
 
         // Check if pid exist
-        if (!file_exists('/proc/' . $pid)) {
+        // does not work on windows so we exclude this check on windows
+        if (stripos(PHP_OS, 'win') === false && !file_exists('/proc/' . $pid)) {
             return false;
         }
 
