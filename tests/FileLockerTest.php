@@ -1,9 +1,9 @@
 <?php
-namespace Hope\Tests\Locker;
+namespace Loevgaard\Tests\Locker;
 
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
-use Hope\Locker\FileLocker;
+use Loevgaard\Locker\FileLocker;
 
 class FileLockerTest extends \PHPUnit_Framework_TestCase
 {
@@ -23,7 +23,7 @@ class FileLockerTest extends \PHPUnit_Framework_TestCase
     /**
      * Basic workflow test
      *
-     * @covers Hope\Locker\FileLocker
+     * @covers \Loevgaard\Locker\FileLocker
      *
      */
     public function testBasic()
@@ -32,8 +32,8 @@ class FileLockerTest extends \PHPUnit_Framework_TestCase
         $lockFile = $this->getLockFileName($lockId);
 
         // Init Locker
-        $locker = new FileLocker($lockId, ['lockDir' => 'vfs://lock']);
-        $this->assertInstanceOf('Hope\Locker\FileLocker', $locker);
+        $locker = new FileLocker($lockId, 'vfs://lock');
+        $this->assertInstanceOf('Loevgaard\Locker\FileLocker', $locker);
 
         // Lock
         $locker->lock();
@@ -45,15 +45,9 @@ class FileLockerTest extends \PHPUnit_Framework_TestCase
         $vfsLockFile = $this->root->getChild($lockFile);
         $this->assertRegExp('~\d+~', $vfsLockFile->getContent());
 
-        // Check is locked
-        $this->assertTrue($locker->isLocked());
-
         // Unlock
-        $locker->unlock();
+        $locker->release();
         $this->assertFalse($this->root->hasChild($lockFile));
-
-        // Check is unlocked
-        $this->assertFalse($locker->isLocked());
     }
 
     public function testUnlockIfPidNotExists()
@@ -61,7 +55,7 @@ class FileLockerTest extends \PHPUnit_Framework_TestCase
         $lockId   = 'testPid';
         $lockFile = $this->getLockFileName($lockId);
 
-        $locker = new FileLocker($lockId, ['lockDir' => 'vfs://lock']);
+        $locker = new FileLocker($lockId, 'vfs://lock');
         $locker->lock();
 
         /**
@@ -69,48 +63,37 @@ class FileLockerTest extends \PHPUnit_Framework_TestCase
          */
         $vfsLockFile = $this->root->getChild($lockFile);
         $vfsLockFile->setContent('99999');
-
-        $this->assertFalse($locker->isLocked());
     }
 
     /**
-     * @expectedException \Hope\Locker\LockerException
+     * @expectedException \Loevgaard\Locker\LockerException
      */
     public function testExceptionId()
     {
         $lockId = 'wrongId.%';
-        $locker = new FileLocker($lockId);
+        new FileLocker($lockId);
     }
 
     /**
-     * @expectedException \Symfony\Component\OptionsResolver\Exception\MissingOptionsException
-     */
-    public function testMissingOptions()
-    {
-        $lockId = 'testNoOption';
-        $locker = new FileLocker($lockId, []);
-    }
-
-    /**
-     * @expectedException \Hope\Locker\LockerException
+     * @expectedException \Loevgaard\Locker\LockerException
      */
     public function testExceptionLocked()
     {
         $lockId = 'testExLocked';
-        $locker = new FileLocker($lockId, ['lockDir' => 'vfs://lock']);
+        $locker = new FileLocker($lockId, 'vfs://lock');
         $locker->lock();
         $locker->lock();
     }
 
     /**
-     * @expectedException \Hope\Locker\LockerException
+     * @expectedException \Loevgaard\Locker\LockerException
      */
     public function testExceptionRead()
     {
         $lockId   = 'testExRead';
         $lockFile = $this->getLockFileName($lockId);
 
-        $locker = new FileLocker($lockId, ['lockDir' => 'vfs://lock']);
+        $locker = new FileLocker($lockId, 'vfs://lock');
         $locker->lock();
 
         /**
@@ -119,28 +102,26 @@ class FileLockerTest extends \PHPUnit_Framework_TestCase
         $vfsLockFile = $this->root->getChild($lockFile);
         $vfsLockFile->chmod(0400)
                     ->chown(1);
-
-        $locker->isLocked();
     }
 
     /**
-     * @expectedException \Hope\Locker\LockerException
+     * @expectedException \Loevgaard\Locker\LockerException
      */
     public function testExceptionWrite()
     {
         $lockId = 'testExWrite';
-        $locker = new FileLocker($lockId, ['lockDir' => 'vfs://notExists']);
+        $locker = new FileLocker($lockId, 'vfs://notExists');
         $locker->lock();
     }
 
     /**
-     * @expectedException \Hope\Locker\LockerException
+     * @expectedException \Loevgaard\Locker\LockerException
      */
     public function testExceptionDel()
     {
         $lockId   = 'testExDel';
 
-        $locker = new FileLocker($lockId, ['lockDir' => 'vfs://lock']);
+        $locker = new FileLocker($lockId, 'vfs://lock');
         $locker->lock();
 
         // Prevet lockfile form removing
@@ -148,18 +129,18 @@ class FileLockerTest extends \PHPUnit_Framework_TestCase
              ->chmod(0400)
              ->chown(1);
 
-        $locker->unlock();
+        $locker->release();
     }
 
     /**
-     * @expectedException \Hope\Locker\LockerException
+     * @expectedException \Loevgaard\Locker\LockerException
      */
     public function testExceptionLockFileContent()
     {
         $lockId   = 'testExContent';
         $lockFile = $this->getLockFileName($lockId);
 
-        $locker = new FileLocker($lockId, ['lockDir' => 'vfs://lock']);
+        $locker = new FileLocker($lockId, 'vfs://lock');
         $locker->lock();
 
         /**
@@ -167,8 +148,6 @@ class FileLockerTest extends \PHPUnit_Framework_TestCase
          */
         $vfsLockFile = $this->root->getChild($lockFile);
         $vfsLockFile->setContent('NotAPid');
-
-        $locker->isLocked();
     }
 
     /**

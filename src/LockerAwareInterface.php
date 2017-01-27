@@ -1,5 +1,5 @@
 <?php
-namespace Hope\Locker;
+namespace Loevgaard\Locker;
 
 /**
  * Locker aware interface
