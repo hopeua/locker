@@ -12,11 +12,6 @@ class FileLocker implements LockerInterface
     private $id;
 
     /**
-     * @var string RegExp for Lock ID
-     */
-    private $regId = '~^[a-zA-Z0-9\-_]+$~';
-
-    /**
      * @var string RegExp for Process ID
      */
     private $regPid = '~^\d+$~';
@@ -30,10 +25,7 @@ class FileLocker implements LockerInterface
 
     public function __construct($id, $lockDir = null)
     {
-        // Test ID
-        if (!preg_match($this->regId, $id)) {
-            throw new LockerException('Invalid ID', LockerException::INVALID_ID);
-        }
+        $id = $this->canonicalizeId($id);
 
         if($lockDir) {
             if(!is_dir($lockDir) || !is_writable($lockDir)) {
@@ -65,9 +57,11 @@ class FileLocker implements LockerInterface
                 throw new LockerException(sprintf('Unexpected content in lock file %s', $this->getFilePath()), LockerException::LOCK_CONTENT);
             }
 
-            // Check if pid exist
-            // does not work on windows so we exclude this check on windows
-            if (stripos(PHP_OS, 'win') === false && file_exists('/proc/' . $pid)) {
+            // on windows we will return false if the file exists
+            // on linux we will make another check where we check if the process file exists
+            if (stripos(PHP_OS, 'win') === false) {
+                return false;
+            } elseif(file_exists('/proc/' . $pid)) {
                 return false;
             }
         }
@@ -97,5 +91,13 @@ class FileLocker implements LockerInterface
     {
         $lockFile = $this->lockDir . DIRECTORY_SEPARATOR . $this->id . '.lock';
         return $lockFile;
+    }
+
+    /**
+     * @param string $id
+     * @return string
+     */
+    private function canonicalizeId($id) {
+        return preg_replace('[_]+', '_', preg_replace('[^0-9a-z.-_]', '_', strtolower($id)));
     }
 }

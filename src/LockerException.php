@@ -3,12 +3,8 @@ namespace Loevgaard\Locker;
 
 use RuntimeException;
 
-/**
- * Locker exceptions
- */
 class LockerException extends RuntimeException
 {
-    const INVALID_ID        = 10;
     const INVALID_LOCK_DIR  = 15;
     const LOCKED            = 20;
     const LOCK_CONTENT      = 30;
