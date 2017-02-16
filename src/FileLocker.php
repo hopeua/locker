@@ -79,7 +79,24 @@ class FileLocker implements LockerInterface
      */
     public function release()
     {
-        @unlink($this->getFilePath());
+        // Check if lock file exists
+        if (file_exists($this->getFilePath())) {
+            // Get pid of last process
+            $pid = @file_get_contents($this->getFilePath());
+            if (false === $pid) {
+                throw new LockerException(sprintf('Failed to read the lock file %s', $this->getFilePath()), LockerException::FS_READ);
+            }
+
+            // Check if pid is valid
+            if (!preg_match($this->regPid, $pid)) {
+                throw new LockerException(sprintf('Unexpected content in lock file %s', $this->getFilePath()), LockerException::LOCK_CONTENT);
+            }
+
+            // if the current pid equals our pid we can delete the lock file and thereby release the lock
+            if($pid === getmypid()) {
+                @unlink($this->getFilePath());
+            }
+        }
     }
 
     /**
