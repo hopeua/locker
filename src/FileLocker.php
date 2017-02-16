@@ -115,6 +115,6 @@ class FileLocker implements LockerInterface
      * @return string
      */
     private function canonicalizeId($id) {
-        return preg_replace('/[_]+/', '_', preg_replace('/[^0-9a-z.-_]/', '_', strtolower($id)));
+        return preg_replace('/[_]+/', '_', preg_replace('/[^_0-9a-z.-]/', '_', strtolower($id)));
     }
 }
