@@ -93,7 +93,7 @@ class FileLocker implements LockerInterface
             }
 
             // if the current pid equals our pid we can delete the lock file and thereby release the lock
-            if($pid === getmypid()) {
+            if((int)$pid === getmypid()) {
                 @unlink($this->getFilePath());
             }
         }
