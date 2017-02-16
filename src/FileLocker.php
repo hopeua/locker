@@ -59,7 +59,7 @@ class FileLocker implements LockerInterface
 
             // on windows we will return false if the file exists
             // on linux we will make another check where we check if the process file exists
-            if (stripos(PHP_OS, 'win') === false) {
+            if (stripos(PHP_OS, 'win') !== false) {
                 return false;
             } elseif(file_exists('/proc/' . $pid)) {
                 return false;
