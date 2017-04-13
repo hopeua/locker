@@ -1,8 +1,9 @@
 <?php
-namespace Hope\Tests\Locker;
+namespace Tests\Locker;
 
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
+use org\bovigo\vfs\visitor\vfsStreamPrintVisitor;
 use Hope\Locker\FileLocker;
 
 class FileLockerTest extends \PHPUnit_Framework_TestCase
@@ -23,7 +24,7 @@ class FileLockerTest extends \PHPUnit_Framework_TestCase
     /**
      * Basic workflow test
      *
-     * @covers Hope\Locker\FileLocker
+     * @covers \Hope\Locker\FileLocker
      *
      */
     public function testBasic()

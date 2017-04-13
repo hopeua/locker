@@ -2,7 +2,6 @@
 namespace Hope\Locker;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 /**
  * Lock using file and id of process
@@ -45,9 +44,9 @@ class FileLocker implements LockerInterface
         $this->options = $options;
     }
 
-    private function configureOptions(OptionsResolverInterface $resolver)
+    private function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setRequired(['lockDir']);
+        $resolver->setRequired('lockDir');
     }
 
     /**
