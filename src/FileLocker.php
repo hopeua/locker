@@ -96,8 +96,22 @@ class FileLocker implements LockerInterface
             ), LockerException::LOCK_CONTENT);
         }
 
-        // Check if pid exist
-        return (int)$pid === getmypid();
+        // Check if process exists
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            $runningPIDs = array_column(
+                array_map(
+                    'str_getcsv',
+                    explode("\n", trim(`tasklist /FO csv /NH`))
+                ), 1);
+        } else {
+            $runningPIDs = explode("\n", trim(`ps -e | awk '{print $1}'`));
+        }
+
+        if (in_array($pid, $runningPIDs)) {
+            return true;
+        }
+
+        return false;
     }
 
     /**

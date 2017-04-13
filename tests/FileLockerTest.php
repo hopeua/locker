@@ -56,7 +56,7 @@ class FileLockerTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($locker->isLocked());
     }
 
-    public function testUnlockIfPidNotExists()
+    public function testLockIfPidNotExists()
     {
         $lockId   = 'test.pid';
         $lockFile = $this->getLockFileName($lockId);
@@ -71,6 +71,10 @@ class FileLockerTest extends \PHPUnit_Framework_TestCase
         $vfsLockFile->setContent('99999');
 
         $this->assertFalse($locker->isLocked());
+
+        $locker->lock();
+
+        $this->assertTrue($locker->isLocked());
     }
 
     /**
