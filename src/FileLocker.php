@@ -102,7 +102,9 @@ class FileLocker implements LockerInterface
                 array_map(
                     'str_getcsv',
                     explode("\n", trim(`tasklist /FO csv /NH`))
-                ), 1);
+                ),
+                1
+            );
         } else {
             $runningPIDs = explode("\n", trim(`ps -e | awk '{print $1}'`));
         }
