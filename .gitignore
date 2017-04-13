@@ -1,4 +1,3 @@
 # Project
-/vendor
-/phpunit.xml
-composer.lock
+vendor/
+phpunit.xml

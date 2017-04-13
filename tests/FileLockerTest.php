@@ -23,12 +23,12 @@ class FileLockerTest extends \PHPUnit_Framework_TestCase
     /**
      * Basic workflow test
      *
-     * @covers Hope\Locker\FileLocker
+     * @covers \Hope\Locker\FileLocker
      *
      */
     public function testBasic()
     {
-        $lockId   = 'testOne';
+        $lockId   = 'test.one';
         $lockFile = $this->getLockFileName($lockId);
 
         // Init Locker
@@ -48,7 +48,7 @@ class FileLockerTest extends \PHPUnit_Framework_TestCase
         // Check is locked
         $this->assertTrue($locker->isLocked());
 
-        // Unlock
+        // Release lock
         $locker->release();
         $this->assertFalse($this->root->hasChild($lockFile));
 
@@ -58,7 +58,7 @@ class FileLockerTest extends \PHPUnit_Framework_TestCase
 
     public function testUnlockIfPidNotExists()
     {
-        $lockId   = 'testPid';
+        $lockId   = 'test.pid';
         $lockFile = $this->getLockFileName($lockId);
 
         $locker = new FileLocker($lockId, 'vfs://lock');
@@ -75,19 +75,21 @@ class FileLockerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \Hope\Locker\LockerException
+     * @expectedExceptionCode \Hope\Locker\LockerException::INVALID_LOCK_DIR
      */
-    public function testExceptionId()
+    public function testExceptionInvalidDir()
     {
-        $lockId = 'wrongId.%';
-        new FileLocker($lockId);
+        $lockId = 'test.ex.dir';
+        new FileLocker($lockId, 'vfs://notExists');
     }
 
     /**
      * @expectedException \Hope\Locker\LockerException
+     * @expectedExceptionCode \Hope\Locker\LockerException::LOCKED
      */
     public function testExceptionLocked()
     {
-        $lockId = 'testExLocked';
+        $lockId = 'test.ex.locked';
         $locker = new FileLocker($lockId, 'vfs://lock');
         $locker->lock();
         $locker->lock();
@@ -95,10 +97,11 @@ class FileLockerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \Hope\Locker\LockerException
+     * @expectedExceptionCode \Hope\Locker\LockerException::FS_READ
      */
     public function testExceptionRead()
     {
-        $lockId   = 'testExRead';
+        $lockId   = 'test.ex.read';
         $lockFile = $this->getLockFileName($lockId);
 
         $locker = new FileLocker($lockId, 'vfs://lock');
@@ -116,25 +119,32 @@ class FileLockerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \Hope\Locker\LockerException
+     * @expectedExceptionCode \Hope\Locker\LockerException::FS_WRITE
      */
     public function testExceptionWrite()
     {
-        $lockId = 'testExWrite';
-        $locker = new FileLocker($lockId, 'vfs://notExists');
+        $lockId = 'test.ex.write';
+        $locker = new FileLocker($lockId, 'vfs://lock');
+
+        $this->root
+            ->chmod(0400)
+            ->chown(1);
+
         $locker->lock();
     }
 
     /**
      * @expectedException \Hope\Locker\LockerException
+     * @expectedExceptionCode \Hope\Locker\LockerException::FS_DEL
      */
     public function testExceptionDel()
     {
-        $lockId   = 'testExDel';
+        $lockId   = 'test.ex.del';
 
         $locker = new FileLocker($lockId, 'vfs://lock');
         $locker->lock();
 
-        // Prevet lockfile form removing
+        // Prevent lockfile from removing
         $this->root
              ->chmod(0400)
              ->chown(1);
@@ -144,10 +154,11 @@ class FileLockerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \Hope\Locker\LockerException
+     * @expectedExceptionCode \Hope\Locker\LockerException::LOCK_CONTENT
      */
     public function testExceptionLockFileContent()
     {
-        $lockId   = 'testExContent';
+        $lockId   = 'test.ex.content';
         $lockFile = $this->getLockFileName($lockId);
 
         $locker = new FileLocker($lockId, 'vfs://lock');

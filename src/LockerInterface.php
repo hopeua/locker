@@ -1,5 +1,5 @@
 <?php
-namespace Loevgaard\Locker;
+namespace Hope\Locker;
 
 /**
  * Interface for different lockers
@@ -21,4 +21,12 @@ interface LockerInterface
      * @throws LockerException
      */
     public function release();
+
+    /**
+     * Check if lock is locked
+     *
+     * @return bool
+     * @throws LockerException
+     */
+    public function isLocked();
 }
