@@ -1,8 +1,4 @@
 # Project
-/vendor/
-/dev/
-phpunit.xml
+/vendor
+/phpunit.xml
 composer.lock
-
-# System
-.DS_Store
